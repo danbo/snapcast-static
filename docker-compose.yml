@@ -1,0 +1,28 @@
+services:
+  snapserver:
+    image: danbo/snapcast-static:v0.32.3_web-v0.9.1-static-linux-amd64
+    container_name: snapserver
+    restart: unless-stopped
+    ports:
+      # snapcast
+      - "1704:1704" # stream port
+      - "1705:1705" # control port
+      - "1780:1780" # ui port
+
+      # streams
+      #   example port mount - if pushing a stream to a snapcast endpoint
+      #   corresponding snapserver example stream config:
+      #     source = tcp://0.0.0.0:11111?codec=flac&name=stream-flac&mode=server&sampleformat=44100:16:2&chunk_ms=26
+      - "11111:11111" 
+    
+    volumes:
+      # mount config from host so container can use it
+      - ./snapserver_0.31.0_default.conf:/etc/snapserver.conf
+      # mount state to host so client settings are remembered
+      - ./server.json:/root/.config/snapserver/server.json
+      # example pipe mount - if pushing to snapcast via a pipe
+      #   corresponding snapserver example stream config:
+      #     source = pipe:///tmp/snapfifo?name=stream-fifo&mode=read&sampleformat=44100:16:2 
+      #- /tmp/snapfifo:tmp/snapfifo
+    environment:
+      TZ: "America/New_York"
